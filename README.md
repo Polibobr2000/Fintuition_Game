@@ -47,8 +47,6 @@ The backend runs data ingestion jobs via **Apache Airflow**, tracks user accura
 
 [](https://github.com/Polibobr2000/Fintuition_Game#%E2%80%8D-the-process)
 
-The application architecture was developed in iterative phases, transitioning from a simple standalone script to a production-ready distributed network system:
-
 ``` mermaid
 graph TD
     %% Define System Actors and Layers
@@ -91,11 +89,11 @@ graph TD
     class User actor;
 ```
 
-1. **Database Strategy & Storage Architecture:** Designed a normalized schema in PostgreSQL separating core asset attributes (dimension), historical price snapshots (fact), active user attributes, transactional forecasts, and raw action tracking arrays.
-2. **Building the Asynchronous Core:** Built the Telegram handler loop utilizing non-blocking asynchronous drivers (`asyncpg`). Implemented unified `INSERT...ON CONFLICT DO UPDATE` CTE structural chains to atomically register user touchpoints and log event telemetry in a single runtime operation.
-3. **Data Ingestion Integration & Airflow Workflows:** Set up separate DAG data workflows. Transformed raw runtime scripts into decoupled Airflow Tasks utilizing local module imports and connection pooling hooks. Added strict verification blocks that explicitly enforce worker tasks to retry if financial endpoints throw rate-limiting errors.
-4. **Implementing Cache Management & Performance Tuning:** Created dedicated RAM caching engines inside the bot state to eliminate redundant read queries on the PostgreSQL server. Built automated midnight cleanup hooks to wipe the transient memory once daily checking windows expire.
-5. **Analytics Layer Integration:** Compiled heavy window functions, spam tracking filters, and velocity calculations into performance-tuned Database Materialized Views to allow instant analytical updates without exhausting resource channels. Integrated an independent Redis layer to fuel Apache Superset caching.
+1. **Data Modeling & Tracking Schema Design:** Designed a relational PostgreSQL schema specifically structured for product analytics. Separated core entities into dimension tables (users, assets) and tracking tables (forecasts, action logs) to capture clean behavioral data.
+2. **User Telemetry & Event Logging:** Built an automated event-logging layer to capture raw user interactions, command usage, and button clicks. This creates a comprehensive behavioral telemetry dataset used to measure feature adoption and interface friction.
+3. **ETL Pipeline Automation:** Engineered automated Airflow pipelines (DAGs) to handle daily extraction and loading of external market data. Implemented API rate-limit monitoring and task retry rules to guarantee data completeness for daily evaluation loops.
+4. **Performance & Resource Optimization:** Implemented transient database caching configurations to handle repetitive user query requests instantly. This ensures low-latency performance for the user-facing interface during high-traffic voting windows.
+5. **Analytics Layer & Metric Aggregation:** Created specialized database Materialized Views to calculate key product metrics, including active voter turnout, feature adoption depth, user response velocity, interface spam rates, and weekly prediction accuracy. This decoupled analytical processing from production tables, feeding clean data marts straight into Yandex DataLens for real-time reporting.
 
 ---
 
