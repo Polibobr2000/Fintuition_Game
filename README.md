@@ -15,7 +15,7 @@ The backend runs data ingestion jobs via **Apache Airflow**, tracks user accura
 - **Database Engine:** PostgreSQL 15 (Alpine Cluster)
 - **BI & Analytics Dashboarding:** Datalens (Apache Superset, Redis Cache)
 - **Asynchronous Processing:** Python, `asyncio`, `asyncpg`
-- **Data Pipelines & Scheduling:** Apache Airflow (v2.7.2, Python 3.10)
+- **Data Pipelines & Scheduling:** Apache Airflow
 - **Application Interface:** `python-telegram-bot`
 - **Data Providers:** AlphaVantage Financial API
 - **Containerization & Environment Infrastructure:** Docker Compose
