@@ -49,12 +49,46 @@ The backend runs data ingestion jobs via **Apache Airflow**, tracks user accura
 
 The application architecture was developed in iterative phases, transitioning from a simple standalone script to a production-ready distributed network system:
 
-```
-[ Telegram Users ] <---> [ Asynchronous Bot Worker ] <---> [ PostgreSQL Database ]
-                                                                   ^
-[ AlphaVantage API ] <---> [ Apache Airflow Engines ] ------------/
-                                                                   v
-                          [ Apache Superset Web Portal ] <---> [ Redis Cache ]
+``` mermaid
+graph TD
+    %% Define System Actors and Layers
+    User([📱 Telegram Users])
+    
+    subgraph Telegram_Interface [Interface & Caching Layer]
+        Bot[🤖 Telegram Bot Script]
+        Cache[(RAM Cache)]
+    end
+
+    subgraph Data_Orchestration [Data Pipeline Layer]
+        API[🌐 AlphaVantage API]
+        Airflow{🌬️ Apache Airflow Engine}
+    end
+
+    subgraph Storage_Analytics [Storage & Reporting Layer]
+        DB[(🐘 PostgreSQL Database)]
+        DataLens[[📊 Yandex DataLens BI]]
+    end
+
+    %% Flow Connections
+    User <--> |Interaction & Polls| Bot
+    Bot <--> |Fast RAM Lookups| Cache
+    Bot <--> |Log Telemetry & Reads| DB
+    
+    API <--> |Throttled Extraction| Airflow
+    Airflow --> |Daily Batch Ingestion| DB
+    
+    DB ---> |Direct Analytical Read| DataLens
+
+    %% Visual Themes and Branding
+    classDef interface fill:#fff4fc,stroke:#d4a5c9,stroke-width:2px;
+    classDef pipeline fill:#fff7ed,stroke:#ea580c,stroke-width:2px;
+    classDef storage fill:#f0fdf4,stroke:#16a34a,stroke-width:2px;
+    classDef actor fill:#f8fafc,stroke:#475569,stroke-width:2px;
+
+    class Bot,Cache interface;
+    class API,Airflow pipeline;
+    class DB,DataLens storage;
+    class User actor;
 ```
 
 1. **Database Strategy & Storage Architecture:** Designed a normalized schema in PostgreSQL separating core asset attributes (dimension), historical price snapshots (fact), active user attributes, transactional forecasts, and raw action tracking arrays.
