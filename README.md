@@ -97,16 +97,4 @@ graph TD
 
 ---
 
-## 📚 What I Learned
-
-[](https://github.com/Polibobr2000/Fintuition_Game#-what-i-learned)
-
----
-
-## 💭 How Can It Be Improved?
-
-[](https://github.com/Polibobr2000/Fintuition_Game#-how-can-it-be-improved)
-
----
-
 ## 🍿 Video
