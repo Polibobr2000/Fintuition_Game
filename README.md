@@ -97,4 +97,10 @@ graph TD
 
 ---
 
+## 🗃 DB Schema
+
+<img width="861" height="752" alt="db_schema" src="https://github.com/user-attachments/assets/bbfdee1a-aac7-47bc-b952-651bda68ebc9" />
+
+---
+
 ## 🍿 Video
