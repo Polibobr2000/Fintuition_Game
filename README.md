@@ -26,7 +26,7 @@ The backend runs data ingestion jobs via **Apache Airflow**, tracks user accura
 
 [](https://github.com/Polibobr2000/Fintuition_Game#-features)
 
-### ❇️ The Core Experience: Telegram Integration
+### ❇️ The Core Experience: Telegram UI
 
 [](https://github.com/Polibobr2000/Fintuition_Game#%EF%B8%8F-the-core-experience-telegram-integration)
 
@@ -40,7 +40,7 @@ The backend runs data ingestion jobs via **Apache Airflow**, tracks user accura
 
 [](https://github.com/Polibobr2000/Fintuition_Game#%EF%B8%8F-the-data-engine-airflow-orchestration)
 
-- **Daily Analytics Engine (`daily_market_forecaster_pipeline`):** Runs every day at 18:00 MSK. Handles live currency exchange extraction, stores incoming metric snapshots, processes binary options wins/losses against yesterday's closes, issues push notifications, and refreshes analytical viewports.
+- **Daily Analytics Engine (`daily_market_forecaster_pipeline`):** Runs every day at 18:00 MSK. Handles live currency exchange extraction, stores incoming metric snapshots, processes binary options wins/losses against yesterday's closes, issues push notifications, and refreshes analytical datamarts.
 - **Weekly Broadcasts (`weekly_leaderboard_pipeline`):** Runs every Sunday at 18:05 MSK. Sums correct forecasting counts, transforms logs into formatted scoreboard text featuring victory podium medals, and sequentially broadcasts payloads across the entire subscriber registry.
 
 ## 👩🏽‍🍳 The Process
