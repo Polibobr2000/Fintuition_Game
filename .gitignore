@@ -1,0 +1,14 @@
+# Local credentials and API keys
+.env
+
+# Python compilation data
+__pycache__/
+*.pyc
+
+# Local Airflow test records and manual execution dumps
+standalone_admin_password.txt
+airflow/
+*.db
+
+# Operating system junk
+.DS_Store

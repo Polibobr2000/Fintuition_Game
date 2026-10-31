@@ -1,0 +1,150 @@
+services:
+  # --- SERVICE 1: POSTGRES DATABASE ---
+  database_service:
+    image: postgres:15-alpine
+    container_name: fintuition_db
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "${DB_PORT_EXTERNAL}:5432"
+    volumes:
+      - postgres_production_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # --- SERVICE 2: ONE-TIME HISTORICAL DATA RUNNER ---
+  history_initializer:
+    build:
+      context: .
+      dockerfile: Dockerfile.airflow
+    container_name: fintuition_history_loader
+    env_file:
+      - .env
+    environment:
+      - DB_HOST=database_service
+    volumes:
+      - .:/app
+    working_dir: /app
+    command: python bulk_insert_historical_prices.py
+    depends_on:
+      database_service:
+        condition: service_healthy
+
+
+  # --- SERVICE 3: AIRFLOW INIT & ADMIN ACCOUNT PROVISIONING ---
+  airflow-init:
+    build:
+      context: .
+      dockerfile: Dockerfile.airflow
+    env_file:
+      - .env
+    environment:
+      AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://${DB_USER}:${DB_PASS}@database_service:5432/${AIRFLOW_DB_NAME}
+    depends_on:
+      database_service:
+        condition: service_healthy
+    command: db migrate
+
+  # --- SERVICE 4: AIRFLOW WEB UI PORTAL ---
+  airflow-webserver:
+    build:
+      context: .
+      dockerfile: Dockerfile.airflow
+    container_name: airflow_webserver
+    restart: always
+    user: "${AIRFLOW_UID:-50000}:0"
+    env_file:
+      - .env
+    environment:
+      AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://${DB_USER}:${DB_PASS}@database_service:5432/${AIRFLOW_DB_NAME}
+      AIRFLOW_CONN_POSTGRES_DEFAULT: postgresql+psycopg2://${DB_USER}:${DB_PASS}@database_service:5432/${DB_NAME}      
+      AIRFLOW__CORE__LOAD_EXAMPLES: 'False'
+      AIRFLOW__WEBSERVER__SECRET_KEY: ${AIRFLOW_WEBSERVER_SECRET_KEY}
+    ports:
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - ./dags:/opt/airflow/dags
+    depends_on:
+      airflow-init:
+        condition: service_completed_successfully
+    command: webserver
+
+  # --- SERVICE 5: AIRFLOW SCHEDULER ENGINE ---
+  airflow-scheduler:
+    build:
+      context: .
+      dockerfile: Dockerfile.airflow
+    container_name: airflow_scheduler
+    restart: always
+    user: "${AIRFLOW_UID:-50000}:0"
+    env_file:
+      - .env
+    environment:
+      AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://${DB_USER}:${DB_PASS}@database_service:5432/${AIRFLOW_DB_NAME}
+      AIRFLOW__CORE__LOAD_EXAMPLES: 'False'
+      AIRFLOW_CONN_POSTGRES_DEFAULT: postgresql+psycopg2://${DB_USER}:${DB_PASS}@database_service:5432/${DB_NAME}
+      AIRFLOW__WEBSERVER__SECRET_KEY: ${AIRFLOW_WEBSERVER_SECRET_KEY}
+    volumes:
+      - ./dags:/opt/airflow/dags
+    depends_on:
+      airflow-init:
+        condition: service_completed_successfully
+    command: scheduler
+
+  # --- SERVICE 6: 24/7 ASYNCHRONOUS TELEGRAM BOT ---
+  telegram_bot:
+    build:
+      context: .
+      dockerfile: Dockerfile.airflow
+    container_name: fintuition_tg_bot
+    restart: always
+    user: "${AIRFLOW_UID:-50000}:0"
+    env_file:
+      - .env
+    environment:
+      DB_HOST: database_service
+    volumes:
+      - ./fintuition_tg.py:/opt/airflow/fintuition_tg.py
+    depends_on:
+      database_service:
+        condition: service_healthy
+    command: python /opt/airflow/fintuition_tg.py
+
+  # --- SERVICE 7: REDIS CACHE FOR SUPERSET ---
+  superset_cache:
+    image: redis:7-alpine
+    container_name: superset_cache
+    restart: always
+
+  # --- SERVICE 8: APACHE SUPERSET WEB APPLIANCE ---
+  superset:
+    image: apache/superset:latest-dev
+    container_name: superset_app
+    restart: always
+    ports:
+      - "127.0.0.1:8088:8088"
+    env_file:
+      - .env
+    environment:
+      SUPERSET_CONFIG_PATH: /etc/superset/superset_config.py
+      SQLALCHEMY_DATABASE_URI: postgresql+psycopg2://${DB_USER}:${DB_PASS}@database_service:5432/${SUPERSET_DB_NAME}
+      REDIS_HOST: superset_cache
+    volumes:
+      - superset_home:/app/superset_home
+      - ./superset_config.py:/etc/superset/superset_config.py
+    depends_on:
+      database_service:
+        condition: service_healthy
+      superset_cache:
+        condition: service_started
+
+volumes:
+  postgres_production_data:
+  superset_home:
