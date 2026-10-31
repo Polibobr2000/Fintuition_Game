@@ -30,11 +30,11 @@ The backend runs data ingestion jobs via **Apache Airflow**, tracks user accura
 
 [](https://github.com/Polibobr2000/Fintuition_Game#%EF%B8%8F-the-core-experience-telegram-integration)
 
-- **Interactive Menu Interface (`/start`):** A welcome portal introducing game configurations, structural rules, and quick actions.
-- **Automated Forecasting Windows (`/polls`):** Triggers interactive market voting panels every single weekday at 18:00 MSK with an immutable, strict 3-hour lock-in window expiring at 21:00 MSK.
-- **Tiered Result Tracking (`/brief` & `/detailed`):** Instantly review predictive outcomes. `/brief` exposes quick green/red binary signals, while `/detailed` expands complete price deltas, relative asset metrics, and net percent margins with zero database penalty via transactional RAM memory-caching layers.
-- **Gamified Scoreboards (`/points`):** Instantly aggregates calendar week success factors synced to hard Monday-to-Sunday boundaries.
-- **Embedded Trend Metrics (`/graphs`):** Opens a beautiful external visual dashboard tracking systems (Datalens) and leaderboard rankings using secure Telegram WebApp containers.
+- **/start** guides users through an automated onboarding portal covering structural setup rules, time-zone constraints, and native language preferences to minimize early funnel drop-off rates.
+- **/polls** triggers predictable time-gated engagement loops at 18:00 MSK with a strict 3-hour expiration window designed to build daily active usage habits.
+- **/brief** and **/detailed** provide dual-layer performance reviews, allowing users to instantly switch between viewing low-friction binary signals or analyzing deep relative pricing deltas and percent margins.
+- **/points** aggregates gamified retention scoreboards by summarizing calendar-week user performance indicators to drive long-term user behavior cycles.
+- **/graphs** embeds live interactive product BI metrics into secure Telegram WebApp containers, letting users explore asset trends and leaderboard data via Yandex DataLens in real time.
 
 ### ⚙️ The Data Engine: Airflow Orchestration
 
