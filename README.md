@@ -104,3 +104,5 @@ graph TD
 ---
 
 ## 🍿 Video
+
+https://github.com/user-attachments/assets/e68373b7-21c9-4625-b5ea-751e93490d21
